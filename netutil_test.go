@@ -1,14 +1,26 @@
 package netutil
 
-import "testing"
+import (
+	"fmt"
+	"net"
+	"testing"
+)
 
 func TestLocalIP(t *testing.T) {
-	e, err := LocalIP()
+	l := LocalIP()
+	_, err := net.InterfaceAddrs()
 	if err != nil {
-		t.Error("LocalIP errored:", err)
+		// if there was an error with the interface
+		// then it should be loopback
+		if !l.IsLoopback() {
+			t.Error("LocalIP should be loopback")
+		}
 	}
 
-	if !IsLocalhost(e) {
-		t.Error("Should be local ip. IsLocalhost is false")
+	// Make sure it is localhost
+	if !IsLocalhost(l.String()) {
+		t.Error("LocalIP should be localhost")
 	}
+
+	fmt.Println(l)
 }

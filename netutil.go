@@ -1,9 +1,6 @@
 package netutil
 
-import (
-	"errors"
-	"net"
-)
+import "net"
 
 // IsLocalhost takes an address and checks to see if
 // it matches the local computers
@@ -23,10 +20,13 @@ func IsLocalhost(target string) bool {
 }
 
 // LocalIP return the network address of the computer
-func LocalIP() (string, error) {
+// If it can't get the local ip it returns 127.0.0.1
+func LocalIP() net.IP {
+	loopback := net.ParseIP("127.0.0.1")
+
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return "", err
+		return loopback
 	}
 
 	for _, address := range addrs {
@@ -34,11 +34,11 @@ func LocalIP() (string, error) {
 		if ipnet, ok := address.(*net.IPNet); ok {
 			if !ipnet.IP.IsLoopback() {
 				if ipnet.IP.To4() != nil {
-					return ipnet.IP.To4().String(), nil
+					return ipnet.IP.To4()
 				}
 			}
 		}
 	}
 
-	return "", errors.New("Couldn't get local IP")
+	return loopback
 }
