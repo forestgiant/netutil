@@ -22,8 +22,8 @@ func IsLocalhost(target string) bool {
 	return false
 }
 
-// ExternalIP return the network address of the computer
-func ExternalIP() (string, error) {
+// LocalIP return the network address of the computer
+func LocalIP() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return "", err
@@ -40,15 +40,5 @@ func ExternalIP() (string, error) {
 		}
 	}
 
-	// couldn't get external, send loopback address
-	for _, address := range addrs {
-		// check the address type and make sure it's not loopback
-		if ipnet, ok := address.(*net.IPNet); ok {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP.To4().String(), nil
-			}
-		}
-	}
-
-	return "", errors.New("Couldn't get external IP")
+	return "", errors.New("Couldn't get local IP")
 }
