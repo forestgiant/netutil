@@ -22,8 +22,8 @@ func TestIsLocalhost(t *testing.T) {
 	}
 }
 
-func TestLocalIP(t *testing.T) {
-	l := LocalIP()
+func TestLocalIPv4(t *testing.T) {
+	l := LocalIPv4()
 	_, err := net.InterfaceAddrs()
 	if err != nil {
 		// if there was an error with the interface
@@ -39,7 +39,24 @@ func TestLocalIP(t *testing.T) {
 	}
 }
 
-func TestCovertToLocalIP(t *testing.T) {
+func TestLocalIPv6(t *testing.T) {
+	l := LocalIPv6()
+	_, err := net.InterfaceAddrs()
+	if err != nil {
+		// if there was an error with the interface
+		// then it should be loopback
+		if !l.IsLoopback() {
+			t.Error("LocalIP should be loopback")
+		}
+	}
+
+	// Make sure it matches localhost
+	if !IsLocalhost(l.String()) {
+		t.Error("IsLocalhost check failed")
+	}
+}
+
+func TestCovertToLocalIPv4(t *testing.T) {
 	tests := []struct {
 		address string
 		expect  bool
@@ -51,7 +68,7 @@ func TestCovertToLocalIP(t *testing.T) {
 		{"):*", false},
 	}
 	for _, test := range tests {
-		_, err := ConvertToLocalIP(test.address)
+		_, err := ConvertToLocalIPv4(test.address)
 		result := err == nil
 		if result != test.expect {
 			t.Fatalf("Result was %t, expected %t", result, test.expect)
