@@ -3,7 +3,6 @@ package netutil
 import (
 	"errors"
 	"net"
-	"strings"
 )
 
 // IsLocalhost takes an address and checks to see if
@@ -62,7 +61,15 @@ func LocalIPv6() net.IP {
 
 	for _, intf := range intfs {
 		// If the interface is a loopback or doesn't have multicasting let's skip it
-		if strings.Contains(intf.Flags.String(), net.FlagLoopback.String()) || !strings.Contains(intf.Flags.String(), net.FlagMulticast.String()) {
+		if intf.Flags&net.FlagLoopback == net.FlagLoopback {
+			continue
+		}
+
+		if intf.Flags&net.FlagPointToPoint == net.FlagPointToPoint {
+			continue
+		}
+
+		if (intf.Flags & net.FlagMulticast) == 0 {
 			continue
 		}
 
